@@ -1,0 +1,7 @@
+streamlit==1.52.2
+opencv-python
+scikit-learn
+numpy
+scikit-image
+joblib
+pillow
