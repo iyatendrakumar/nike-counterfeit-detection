@@ -1,5 +1,5 @@
 import streamlit as st
-
+import cv2
 from inference import predict
 
 st.set_page_config(
