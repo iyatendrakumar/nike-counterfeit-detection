@@ -5,3 +5,5 @@ numpy
 scikit-image
 joblib
 pillow
+torch
+torchvision
