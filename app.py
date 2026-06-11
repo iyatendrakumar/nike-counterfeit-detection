@@ -1,5 +1,4 @@
 import streamlit as st
-
 from inference import predict
 
 st.set_page_config(
@@ -12,7 +11,6 @@ st.subheader("Nike Shoes Label Verification")
 
 st.markdown("---")
 
-# Since we are only working with shoes now
 domain = "shoes"
 
 uploaded = st.file_uploader(
@@ -21,7 +19,6 @@ uploaded = st.file_uploader(
 )
 
 if uploaded is not None:
-    # Save uploaded image
     with open("temp.jpg", "wb") as f:
         f.write(uploaded.getbuffer())
 
@@ -31,27 +28,48 @@ if uploaded is not None:
         width=350
     )
 
-    # Explicit verification button
     if st.button("🔍 Verify Authenticity"):
         with st.spinner("Analyzing image..."):
             label, confidence, roi = predict("temp.jpg", domain)
 
         st.markdown("### 🔎 Verification Result")
 
-        st.image(
-            roi,
-            caption="Extracted Region of Interest (ROI)",
-            width=300
-        )
+        # ── Handle Invalid Image ──────────────────────────────────────────
+        if "Invalid" in label:
+            st.warning(f"⚠️ **{label}**")
+            st.info("Please upload a clear image of a **Nike shoe label or shoe**. Human photos, random objects, or blurry images cannot be verified.")
 
-        if label == "Genuine":
-            st.success(f"✅ **{label}**")
+            if roi is not None:
+                st.image(
+                    roi,
+                    caption="Extracted Region of Interest (ROI)",
+                    width=300
+                )
+
+        # ── Genuine ───────────────────────────────────────────────────────
+        elif label == "Genuine":
+            st.image(
+                roi,
+                caption="Extracted Region of Interest (ROI)",
+                width=300
+            )
+            st.success(f"✅ **{label} Nike Product**")
+            st.metric(
+                label="Confidence Score",
+                value=f"{confidence}%"
+            )
+            st.progress(confidence / 100)
+
+        # ── Counterfeit ───────────────────────────────────────────────────
         else:
+            st.image(
+                roi,
+                caption="Extracted Region of Interest (ROI)",
+                width=300
+            )
             st.error(f"❌ **{label}**")
-
-        st.metric(
-            label="Confidence Score",
-            value=f"{confidence}%"
-        )
-
-        st.progress(confidence / 100)
+            st.metric(
+                label="Confidence Score",
+                value=f"{confidence}%"
+            )
+            st.progress(confidence / 100)
